@@ -7,6 +7,10 @@
                 {{ program.published_date }}
             </div>
         {% endif %}
+
+        {% if user.is_authenticated %}
+          <a class="btn btn-default" href="{% url 'post_edit' pk=program.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+        {% endif %}
         <h2>{{ program.title }}</h2>
         <p>{{ program.corner_title|linebreaksbr }}</p>
     </div>
