@@ -1,18 +1,13 @@
-<html>
-    <head>
-        <title>Django Girls blog</title>
-    </head>
-    <body>
-        <div>
-            <h1><a href="/">Django Girls Blog</a></h1>
-        </div>
+{% extends 'myapp/base.html' %}
 
-        {% for program in programs %}
-        <div>
-            <p>published: {{ program.published_date }}</p>
-            <h2><a href="">{{ program.title }}</a></h2>
+{% block content %}
+    {% for program in programs %}
+        <div class="post">
+            <div class="date">
+                <p>published: {{ program.published_date }}</p>
+            </div>
+            <h2><a href="{% url 'post_detail' pk=program.pk %}">{{ program.title }}</a></h2>
             <p>{{ program.corner_title|linebreaksbr }}</p>
         </div>
     {% endfor %}
-    </body>
-</html>
+{% endblock %}

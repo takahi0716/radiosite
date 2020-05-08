@@ -1,0 +1,13 @@
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+    <div class="post">
+        {% if program.published_date %}
+            <div class="date">
+                {{ program.published_date }}
+            </div>
+        {% endif %}
+        <h2>{{ program.title }}</h2>
+        <p>{{ program.corner_title|linebreaksbr }}</p>
+    </div>
+{% endblock %}
