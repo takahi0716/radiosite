@@ -11,26 +11,31 @@ class Program(models.Model):
 
     corner_title = models.CharField(
         verbose_name='コーナー名',
-        max_length=200
+        max_length=200,
+        blank=True,
+        null=True,
     )
 
     address = models.EmailField(
         verbose_name='メールアドレス',
+        blank=True,
+        null=True,
     )
 
     created_date = models.DateTimeField(
         verbose_name='作成時間',
         blank=True,
         null=True,
-        editable=False,
-        default=timezone.now
+        # editable=False,
+        default=timezone.now,
     )
 
     published_date = models.DateTimeField(
         verbose_name='更新時間',
         blank=True,
         null=True,
-        editable=False,
+        # editable=False,
+        default=timezone.now,
     )
 
     # kyoku_choice = (
