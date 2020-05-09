@@ -38,19 +38,31 @@ class Program(models.Model):
         default=timezone.now,
     )
 
-    # kyoku_choice = (
-    #     (1, 'TBSラジオ'),
-    #     (2, 'ニッポン放送'),
-    #     (3, '文化放送'),
-    #     (4, 'NHK'),
-    # )
+    def publish(self):
+        self.published_date = timezone.now()
+        self.save()
 
-    # kyoku = models.IntegerField(
-    #     verbose_name='ラジオ局',
-    #     choices=kyoku_choice,
-    #     blank=True,
-    #     null=True,
-    # )
+    def __str__(self):
+        return self.title
+
+    def approved_comments(self):
+        return self.comments.filter(approved_comment=True)
+
+class Station(models.Model):
+    station_choice = (
+        (1, 'TBSラジオ'),
+        (2, 'ニッポン放送'),
+        (3, '文化放送'),
+        (4, 'NHK'),
+    )
+
+    station_name = models.IntegerField(
+        verbose_name='ラジオ局',
+        choices=station_choice,
+    )
+
+    def __str__(self):
+        return self.station_name
 
     # dj = models.CharField(
     #     verbose_name='出演者',
@@ -88,9 +100,34 @@ class Program(models.Model):
     # )
 
 
-    def publish(self):
-        self.published_date = timezone.now()
+
+class Comment(models.Model):
+    # post = models.ForeignKey(
+    #   'myapp.Program', 
+    #   on_delete=models.CASCADE, 
+    #   related_name='comments'
+    # )
+    program = models.ForeignKey(
+      'myapp.Program', 
+      on_delete=models.CASCADE, 
+      related_name='comments'
+    )
+
+    author = models.CharField(
+      max_length=200
+    )
+    text = models.TextField()
+    created_date = models.DateTimeField(
+      default=timezone.now
+    )
+    approved_comment = models.BooleanField(
+      default=False
+    )
+
+    def approve(self):
+        self.approved_comment = True
         self.save()
 
     def __str__(self):
-        return self.title
+        return self.text
+

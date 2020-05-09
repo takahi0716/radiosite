@@ -6,8 +6,15 @@
             <div class="date">
                 <p>published: {{ program.published_date }}</p>
             </div>
-            <h2><a href="{% url 'post_detail' pk=program.pk %}">{{ program.title }}</a></h2>
+            <h2>
+              <a href="{% url 'post_detail' pk=program.pk %}">
+                {{ program.title }}
+              </a>
+            </h2>
             <p>{{ program.corner_title|linebreaksbr }}</p>
+            <a href="{% url 'post_detail' pk=program.pk %}">
+              Comments: {{ program.approved_comments.count }}
+            </a>
         </div>
     {% endfor %}
 {% endblock %}

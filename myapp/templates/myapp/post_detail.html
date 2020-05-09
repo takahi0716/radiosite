@@ -5,6 +5,7 @@
         {% if program.published_date %}
             <div class="date">
                 {{ program.published_date }}
+                detail
             </div>
         {% else %}
             <a class="btn btn-default" href="{% url 'post_publish' pk=program.pk %}">Publish</a>
@@ -17,4 +18,24 @@
         <h2>{{ program.title }}</h2>
         <p>{{ program.corner_title|linebreaksbr }}</p>
     </div>
+
+    <hr>
+    <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=program.pk %}">Add comment</a>
+    {% for comment in program.comments.all %}
+        {% if user.is_authenticated or comment.approved_comment %}
+            <div class="comment">
+                <div class="date">
+                  {{ comment.created_date }}
+                  {% if not comment.approved_comment %}
+                      <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+                      <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span class="glyphicon glyphicon-ok"></span></a>
+                  {% endif %}
+                </div>
+                <strong>{{ comment.author }}</strong>
+                <p>{{ comment.text|linebreaks }}</p>
+            </div>
+        {% endif %}
+    {% empty %}
+        <p>No comments here </p>
+    {% endfor %}
 {% endblock %}
