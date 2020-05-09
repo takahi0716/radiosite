@@ -4,7 +4,7 @@
     {% for program in programs %}
         <div class="post">
             <div class="date">
-                <p>published: {{ program.published_date }}</p>
+                <p>掲載日: {{ program.published_date }}</p>
             </div>
             <h2>
               <a href="{% url 'post_detail' pk=program.pk %}">
@@ -12,6 +12,17 @@
               </a>
             </h2>
             <p>{{ program.corner_title|linebreaksbr }}</p>
+            <p>ラジオ局：
+            {% for station in program.stations.all %}
+              {{ station.get_station_name_display }}
+              {% if not forloop.last %}
+                /
+              {% endif %}
+            {% empty %}
+              No select 
+            {% endfor %}
+            </p>
+
             <a href="{% url 'post_detail' pk=program.pk %}">
               Comments: {{ program.approved_comments.count }}
             </a>

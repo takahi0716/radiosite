@@ -48,8 +48,20 @@ class Program(models.Model):
     def approved_comments(self):
         return self.comments.filter(approved_comment=True)
 
+    def station_names(self):
+        return self.stations.all()
+        # return self.stations.get_station_name_display()
+
 class Station(models.Model):
+
+    program = models.ForeignKey(
+      'myapp.Program',
+      on_delete=models.CASCADE,
+      related_name='stations',
+    )
+
     station_choice = (
+        (0, '指定なし'),
         (1, 'TBSラジオ'),
         (2, 'ニッポン放送'),
         (3, '文化放送'),
@@ -59,10 +71,11 @@ class Station(models.Model):
     station_name = models.IntegerField(
         verbose_name='ラジオ局',
         choices=station_choice,
+
     )
 
-    def __str__(self):
-        return self.station_name
+    # def __str__(self):
+    #     return self.station_name
 
     # dj = models.CharField(
     #     verbose_name='出演者',
@@ -102,11 +115,7 @@ class Station(models.Model):
 
 
 class Comment(models.Model):
-    # post = models.ForeignKey(
-    #   'myapp.Program', 
-    #   on_delete=models.CASCADE, 
-    #   related_name='comments'
-    # )
+
     program = models.ForeignKey(
       'myapp.Program', 
       on_delete=models.CASCADE, 

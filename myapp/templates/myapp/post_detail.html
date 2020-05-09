@@ -17,6 +17,16 @@
         {% endif %}
         <h2>{{ program.title }}</h2>
         <p>{{ program.corner_title|linebreaksbr }}</p>
+        <p>ラジオ局：
+          {% for station in program.stations.all %}
+            {{ station.get_station_name_display }}
+            {% if not forloop.last %}
+              /
+            {% endif %}
+          {% empty %}
+            No select 
+          {% endfor %}
+          </p>
     </div>
 
     <hr>

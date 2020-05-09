@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Program, Comment
+from .models import Program, Comment, Station
 
 class PostForm(forms.ModelForm):
 
@@ -14,3 +14,10 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('author', 'text',)
+
+
+class StationForm(forms.ModelForm):
+
+    class Meta:
+        model = Station
+        fields = ('station_name',)

@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from .models import Program, Comment
+from .models import Program, Comment, Station
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm, StationForm
 # post_detail ページを表示できれば良いですよね? そのために次のインポートを追加
 from django.shortcuts import redirect
 # roginuser only
