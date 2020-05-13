@@ -3,14 +3,22 @@
 {% block content %}
     {% for program in programs %}
         <div class="post">
-            <div class="date">
+            <!-- <div class="date">
                 <p>掲載日: {{ program.published_date }}</p>
-            </div>
+            </div> -->
             <h2>
               <a href="{% url 'post_detail' pk=program.pk %}">
                 {{ program.title }}
               </a>
             </h2>
+            <p>出演者：
+            {% for dj in program.djs.all %}
+              {{ dj.dj_name }}
+              {% if not forloop.last %}
+                ,
+              {% endif %}
+            {% endfor %}
+            </p>
             <p>{{ program.corner_title|linebreaksbr }}</p>
             <p>ラジオ局：
             {% for station in program.stations.all %}

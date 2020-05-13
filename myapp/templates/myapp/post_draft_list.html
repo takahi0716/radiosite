@@ -7,7 +7,9 @@
               created: {{ program.created_date|date:'d-m-Y' }}
             </p>
             <h1><a href="{% url 'post_detail' pk=program.pk %}">{{ program.title }}</a></h1>
+            <p>{{ program.adress }}</p>
             <p>{{ program.corner_title|linebreaksbr }}</p>
+            <p>{{ program.url }}</p>
         </div>
     {% endfor %}
 {% endblock %}

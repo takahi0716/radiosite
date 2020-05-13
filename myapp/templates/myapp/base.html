@@ -7,6 +7,17 @@
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
         <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/timedropper/1.0/timedropper.min.js"></script>
+        <script>
+          $(function () {
+              // timedropper
+              $("#id_stations-0-end_time").timeDropper({
+                  format: "H:mm",
+                  setCurrentTime: false,
+              });
+          });
+      </script>
     </head>
     <body>
       <div class="page-header">
@@ -28,4 +39,5 @@
           </div>
       </div>
   </body>
+
 </html>

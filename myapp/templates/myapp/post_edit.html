@@ -5,6 +5,22 @@
     <form method="POST" class="post-form">
         {% csrf_token %}
         {{ form.as_p }}
+        {{ dj_formset.management_form }}
+        {% for file_form in dj_formset %}
+            {{ file_form.as_p }}
+            <hr>
+        {% endfor %}
+
+        {{ station_formset.management_form }}
+        {% for file_form in station_formset %}
+            {{ file_form.as_p }}
+        {% endfor %}
+
+        {{ listener_formset.management_form }}
+        {% for listener_form in listener_formset %}
+            {{ listener_form.as_p }}
+            <hr>
+        {% endfor %}
         <button type="submit" class="save btn btn-default">Save</button>
     </form>
 {% endblock %}

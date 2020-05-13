@@ -22,11 +22,23 @@ class Program(models.Model):
         null=True,
     )
 
+    url = models.URLField(
+        verbose_name='公式Webページ',
+        blank=True,
+        null=True,
+    )
+
+    genrelist = models.ManyToManyField(
+        'myapp.Genre',
+        verbose_name='ジャンル',
+        blank=True,
+        related_name='genres',
+    )
+
     created_date = models.DateTimeField(
         verbose_name='作成時間',
         blank=True,
         null=True,
-        # editable=False,
         default=timezone.now,
     )
 
@@ -34,9 +46,13 @@ class Program(models.Model):
         verbose_name='更新時間',
         blank=True,
         null=True,
-        # editable=False,
         default=timezone.now,
     )
+    
+    # okini_num = models.IntegerField(
+    #   verbose_name='お気に入り',
+    #   default=0
+    # )
 
     def publish(self):
         self.published_date = timezone.now()
@@ -50,8 +66,15 @@ class Program(models.Model):
 
     def station_names(self):
         return self.stations.all()
-        # return self.stations.get_station_name_display()
 
+    def dj_names(self):
+        return self.djs.all()
+
+    def listener_name(self):
+        return self.listener_names.all()
+
+
+# 各ラジオ局のオンエア時間
 class Station(models.Model):
 
     program = models.ForeignKey(
@@ -71,49 +94,139 @@ class Station(models.Model):
     station_name = models.IntegerField(
         verbose_name='ラジオ局',
         choices=station_choice,
-
     )
 
-    # def __str__(self):
-    #     return self.station_name
+    day_of_the_week = models.ManyToManyField(
+        'myapp.Week',
+        verbose_name='曜日',
+        blank=True,
+        related_name='day_of_the_weeks',
+    )
 
-    # dj = models.CharField(
-    #     verbose_name='出演者',
-    #     max_length=50
-    # )
+    start_time = models.TimeField (
+        verbose_name='開始時間',
+        blank=True,
+        null=True,
+    )
 
-    # 曜日
-    # week_choice = (
-    #     (1, '月'),
-    #     (2, '火'),
-    #     (3, '水'),
-    #     (4, '木'),
-    #     (5, '金'),
-    #     (6, '土'),
-    #     (7, '日'),
-    # )
-
-    # week = models.MultipleChoiceField(
-    #     verbose_name='曜日',
-    #     choices=week_choice,
-    #     blank=True,
-    #     null=True,
-    # )
-
-    # start_time = models.TimeField (
-    #     verbose_name='開始時間',
-    #     blank=True,
-    #     null=True,
-    # )
-
-    # end_time = models.TimeField (
-    #     verbose_name='終了時間',
-    #     blank=True,
-    #     null=True,
-    # )
+    end_time = models.TimeField (
+        verbose_name='終了時間',
+        blank=True,
+        null=True,
+    )
 
 
+# 曜日
+class Week(models.Model):
 
+    week_choice = (
+        (1, '月'),
+        (2, '火'),
+        (3, '水'),
+        (4, '木'),
+        (5, '金'),
+        (6, '土'),
+        (7, '日'),
+    )
+
+    weeks = models.IntegerField(
+        verbose_name='曜日',
+        choices=week_choice,
+        null=True,
+        unique=True,
+    )
+
+    def __str__(self):
+        return self.get_weeks_display()
+
+
+# 出演者
+class Dj(models.Model):
+
+    program = models.ForeignKey(
+      'myapp.Program',
+      on_delete=models.CASCADE,
+      related_name='djs',
+    )
+
+    dj_name = models.CharField(
+        verbose_name='出演者',
+        max_length=100
+    )
+
+    main_dj = models.BooleanField(
+        verbose_name='メインパーソナリティ',
+    )
+
+    def __str__(self):
+        return self.dj_name
+
+
+# はがき職人
+class Listener(models.Model):
+
+    program = models.ForeignKey(
+      'myapp.Program',
+      on_delete=models.CASCADE,
+      related_name='listeners',
+    )
+
+    listener_name = models.CharField(
+        verbose_name='主なハガキ職人',
+        max_length=100
+    )
+
+    def __str__(self):
+        return self.listener_name
+
+# ジャンル
+class Genre(models.Model):
+
+    genre_choice = (
+        ('var', 'バラエティ'),
+        ('mus', '音楽'),
+        ('news', 'ニュース'),
+        ('edu', '教育'),
+        ('info', '情報'),
+        ('hob', '趣味'),
+    )
+
+    genre_name = models.CharField(
+        verbose_name='ジャンル',
+        choices=genre_choice,
+        null=True,
+        unique=True,
+        max_length=4,
+    )
+
+    def __str__(self):
+        return self.get_genre_name_display()
+
+# お気に入り
+# class Okini(models.Model):
+
+#     user = models.ForeignKey(
+#       settings.AUTH_USER_MODEL,
+#       on_delete=models.CASCADE,
+#       related_name='okini_user',
+#       default='',
+#     )
+
+#     program = models.ForeignKey(
+#       Program,
+#       on_delete=models.CASCADE,
+#       related_name='okini_program',
+#       default='',
+#     )
+
+#     date_created = models.DateTimeField(
+#       auto_now_add=True
+#     )
+
+#     def __str__(self):
+#         return self.program
+
+# コメント
 class Comment(models.Model):
 
     program = models.ForeignKey(
