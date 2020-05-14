@@ -61,11 +61,11 @@ class ListenerForm(forms.ModelForm):
         model = Listener
         fields = ('listener_name',)
 
-# class OkiniForm(forms.ModelForm):
+class OkiniForm(forms.ModelForm):
 
-#     class Meta:
-#         model = Okini
-#         fields = ('user','program')
+    class Meta:
+        model = Okini
+        fields = ('user','program')
 
 
 StationFormset = forms.inlineformset_factory(

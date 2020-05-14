@@ -58,7 +58,25 @@
             {% endif %}
           {% endfor %}
         </p>
-        
+
+        <!-- okini -->
+            <div class="article">
+              {% if user.is_authenticated %}
+                <ul>
+                    {% if okini_sign > 0 %}
+                        <a class="btn btn-default" aria-pressed="true" onclick="post_okini(event, '{{ user.id }}', '{{ program.id }}')">
+                    {% else %}
+                        <a class="btn btn-default" aria-pressed="false" onclick="post_okini(event, '{{ user.id }}', '{{ program.id }}')">
+                    {% endif %}
+                    お気に入り<span>({{ program.okini_program.count }})</span></a>
+                </ul>
+                {% else %}
+                <ul>
+                    お気に入り<span>({{ program.okini_program.count }})</span>
+                </ul>
+                {% endif %}
+            </div>
+
     </div>
 
     <hr>

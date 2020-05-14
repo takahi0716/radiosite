@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse
 from .models import *
+
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
 from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset
@@ -10,15 +11,30 @@ from django.shortcuts import redirect
 # roginuser only
 from django.contrib.auth.decorators import login_required
 
-
 def post_list(request):
     programs = Program.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
     return render(request, 'myapp/post_list.html', {'programs': programs})
 
 
 def post_detail(request, pk):
+# def post_detail(request, user_id, program_id):
     program = get_object_or_404(Program, pk=pk)
-    return render(request, 'myapp/post_detail.html', {'program': program})
+    # ログイン中のユーザー
+    user = request.user.id
+
+    if user != '':
+        okini_sign = Okini.objects.filter(user_id=user  , program_id=program.id).count()
+        program.okini_num = program.okini_program.count()
+        program.save()
+        context = {
+            'program': program,
+            'okini_sign': okini_sign,
+        }
+    else:
+        context = {
+            'program': program,
+        }
+    return render(request, 'myapp/post_detail.html', context)
 
 @login_required
 def post_draft_list(request):
@@ -133,21 +149,22 @@ def post_edit(request, pk):
     # 編集ページを再度表示
     return render(request, 'myapp/post_edit.html', context)
 
-# @login_required
-# def post_okini(request, user_id, program_id):
-#     """いいねボタンをクリック"""
-#     if request.method == 'POST':
-#         query = Okini.objects.filter(user_id=user_id, program_id=program_id)
-#         if query.count() == 0:
-#             okini_tbl = Okini()
-#             okini_tbl.user_id = user_id
-#             okini_tbl.articles_id = program_id
-#             okini_tbl.save()
-#         else:
-#             query.delete()
+@login_required
+def post_okini(request, user_id, program_id):
+    """いいねボタンをクリック"""
+    if request.method == 'POST':
+        query = Okini.objects.filter(user_id=user_id, program_id=program_id)
+        if query.count() == 0:
+            okini_tbl = Okini()
+            okini_tbl.user_id = user_id
+            okini_tbl.program_id = program_id
+            okini_tbl.save()
+        else:
+            query.delete()
 
         # necessary return?
-        # return HttpResponse("ajax is done!")
+        return HttpResponse("ajax is done!")
+        # return redirect('post_list')
 
 
 

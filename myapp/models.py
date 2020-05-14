@@ -49,10 +49,10 @@ class Program(models.Model):
         default=timezone.now,
     )
     
-    # okini_num = models.IntegerField(
-    #   verbose_name='お気に入り',
-    #   default=0
-    # )
+    okini_num = models.IntegerField(
+      verbose_name='お気に入り',
+      default=0
+    )
 
     def publish(self):
         self.published_date = timezone.now()
@@ -73,6 +73,8 @@ class Program(models.Model):
     def listener_name(self):
         return self.listener_names.all()
 
+    def okini_program(self):
+        return self.okini_program
 
 # 各ラジオ局のオンエア時間
 class Station(models.Model):
@@ -203,28 +205,28 @@ class Genre(models.Model):
         return self.get_genre_name_display()
 
 # お気に入り
-# class Okini(models.Model):
+class Okini(models.Model):
 
-#     user = models.ForeignKey(
-#       settings.AUTH_USER_MODEL,
-#       on_delete=models.CASCADE,
-#       related_name='okini_user',
-#       default='',
-#     )
+    user = models.ForeignKey(
+      settings.AUTH_USER_MODEL,
+      on_delete=models.CASCADE,
+      related_name='okini_user',
+      default='',
+    )
 
-#     program = models.ForeignKey(
-#       Program,
-#       on_delete=models.CASCADE,
-#       related_name='okini_program',
-#       default='',
-#     )
+    program = models.ForeignKey(
+      Program,
+      on_delete=models.CASCADE,
+      related_name='okini_program',
+      default='',
+    )
 
-#     date_created = models.DateTimeField(
-#       auto_now_add=True
-#     )
+    date_created = models.DateTimeField(
+      auto_now_add=True
+    )
 
-#     def __str__(self):
-#         return self.program
+    def __str__(self):
+        return self.program
 
 # コメント
 class Comment(models.Model):

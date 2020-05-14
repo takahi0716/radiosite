@@ -30,10 +30,12 @@
               No select 
             {% endfor %}
             </p>
+            <p>お気に入り：{{ program.okini_num }}</p>
 
             <a href="{% url 'post_detail' pk=program.pk %}">
-              Comments: {{ program.approved_comments.count }}
-            </a>
+
+              Comments: {{ program.okini_num }}
+            <!-- </a> -->
         </div>
     {% endfor %}
 {% endblock %}
