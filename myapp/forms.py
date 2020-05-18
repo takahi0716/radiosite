@@ -18,7 +18,7 @@ class CommentForm(forms.ModelForm):
 
     class Meta:
         model = Comment
-        fields = ('author', 'text',)
+        fields = ('author', 'text','like_user',)
 
 
 class StationForm(forms.ModelForm):
@@ -66,7 +66,6 @@ class OkiniForm(forms.ModelForm):
     class Meta:
         model = Okini
         fields = ('user','program')
-
 
 StationFormset = forms.inlineformset_factory(
     # 親親モデル

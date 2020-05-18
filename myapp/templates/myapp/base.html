@@ -14,15 +14,6 @@
         <script src="{% static 'vietnam_research/js/ajax.js' %}" charset="utf-8"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@beta/dist/js.cookie.min.js"></script>    
 
-        <script>
-          $(function () {
-              // timedropper
-              $("#id_stations-0-end_time").timeDropper({
-                  format: "H:mm",
-                  setCurrentTime: false,
-              });
-          });
-      </script>
     </head>
     <body>
       <div class="page-header">
@@ -33,7 +24,8 @@
         {% else %}
           <a href="{% url 'login' %}" class="top-menu"><span class="glyphicon glyphicon-lock"></span></a>
         {% endif %}
-          <h1><a href="/">Django Girls Blog</a></h1>
+          <h1><a href="/">ラジコネ！</a></h1>
+
       </div>
       <div class="content container">
           <div class="row">

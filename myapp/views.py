@@ -3,17 +3,59 @@ from .models import *
 
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
-from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset
+from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset 
 # post_detail ページを表示できれば良いですよね?
 # そのために次のインポートを追加
 
 from django.shortcuts import redirect
 # roginuser only
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+import datetime
+# 検索用
+from django.contrib import messages
+from functools import reduce
+from operator import and_
 
 def post_list(request):
-    programs = Program.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
-    return render(request, 'myapp/post_list.html', {'programs': programs})
+    # 時刻
+    t_now = datetime.datetime.now().time()
+    # 日付
+    today = datetime.date.today()
+    # ログイン中のユーザー
+    user = request.user.id
+
+    # 0:月〜6:日であり、DBに合わせて１をたす
+    youbi = today.weekday()+1
+
+    programs = {}
+    for i in Genre.objects.all():
+        programs[i] = Program.objects.filter(genrelist__in=[i.id]).order_by('okini_num').reverse()[:5]
+
+    # 開始時間＜＝現在時刻、終了時間＞現在時刻
+    onair_programs_TBS = Station.objects.filter(station_name=1, day_of_the_week=youbi,start_time__lte=t_now, end_time__gt=t_now,)
+
+    # コメント
+    new_coments = Comment.objects.all().order_by('created_date').reverse()[:5]
+
+    # 運営からのお知らせ
+    infos = Info.objects.all().order_by('created_date').reverse()[:5]
+
+    # ジャンル
+    genres = Genre.objects.all()
+
+    # パーソナリティ
+    djs = Dj.objects.all()
+
+    context = {
+        'programs': programs,
+        'onair_programs_TBS': onair_programs_TBS,
+        'new_coments':new_coments,
+        'infos':infos,
+        'genres':genres,
+        'djs':djs,
+    }
+    return render(request, 'myapp/post_list.html', context)
 
 
 def post_detail(request, pk):
@@ -151,7 +193,7 @@ def post_edit(request, pk):
 
 @login_required
 def post_okini(request, user_id, program_id):
-    """いいねボタンをクリック"""
+    """お気に入りボタンをクリック"""
     if request.method == 'POST':
         query = Okini.objects.filter(user_id=user_id, program_id=program_id)
         if query.count() == 0:
@@ -166,29 +208,116 @@ def post_okini(request, user_id, program_id):
         return HttpResponse("ajax is done!")
         # return redirect('post_list')
 
+@login_required
+def like_com(request, user_id, comment_id):
+    """いいねボタンをクリック"""
+    if request.method == 'POST':
+
+        comment = get_object_or_404(Comment, pk=comment_id)
+        like_num = Comment.objects.filter(pk=comment_id,like_user=user_id).count()
+        if like_num > 0:
+            comment.like_user.remove(user_id)
+            comment.save()
+
+        else:
+            comment.like_user.add(user_id)
+            comment.save()
+
+        # necessary return?
+        return HttpResponse("ajax is done!")
+
+def post_search(request):
+    program = Program.objects.order_by('-id')
+    """ 検索機能の処理 """
+    keyword = request.GET.get('keyword')
+    if keyword:
+        """ 除外リストを作成 """
+        exclusion_list = set([' ', '　'])
+        q_list = ''
+        for i in keyword:
+            """ 全角半角の空文字が含まれていたら無視 """
+            if i in exclusion_list:
+                pass
+            else:
+                q_list += i
+        query = reduce(
+            and_, [
+                Q(title__icontains=q)
+                | Q(corner_title__icontains=q)
+                | Q(address__icontains=q)
+                | Q(url__icontains=q)
+
+                for q in q_list
+            ]
+        )
+        program = program.filter(query)
+        messages.success(request, '「{}」の検索結果'.format(keyword))
+
+    context = {
+        'program': program,
+        'keyword': keyword,
+    }
+    return render(request, 'myapp/post_search.html', context)
+
+# 絞り込み
+def genre_search(request):
+    # デフォルトは全件取得
+    program = Program.objects.all().order_by('okini_num').reverse()
+
+    # GETのURLクエリパラメータを取得する
+    # 該当のクエリパラメータが存在しない場合は、[]が返ってくる
+    q_genres = request.GET.getlist('genre')
+
+    # ジャンルでの絞込は、genre.pkとして存在してる値のみ対象とする
+    # "a"とかを指定するとValueErrorになるため
+    check=[]
+    for i in Genre.objects.all():
+        check.append(str(i.id))
 
 
+    keyword=''
+    if len(q_genres) != 0:
+        genres = [x for x in q_genres if x in check]
+        # 重複を削除
+        program = program.filter(genrelist__in=genres).distinct()
+        for pk in genres:
+            result = str(Genre.objects.get(pk__in=pk))
+            keyword += result + ' '
+
+    context = {
+        'program': program,
+    }
+    messages.success(request, '「{}」の検索結果'.format(keyword))
+    return render(request, 'myapp/post_search.html', context)
 
 
-# def post_okini(request, *args, **kwargs):
-#     program = get_object_or_404(Program, id=kwargs['program_id'])
-#     is_okini = Okini.objects.filter(user=request.user).filter(program=program).count()
+# 絞り込み
+def dj_search(request):
+    # デフォルトは全件取得
+    program = Program.objects.all().order_by('okini_num').reverse()
 
-#     # unlike
-#     if is_okini > 0:
-#         liking = Okini.objects.get(program__id=kwargs['program_id'], user=request.user)
-#         liking.delete()
-#         program.okini_num -= 1
-#         program.save()
-#         return redirect('myapp/post_edit.html', kwargs={'post_id': kwargs['post_id']})
-#     else:
-#         # like
-#         program.okini_num += 1
-#         program.save()
-#         okini = Okini()
-#         okini.user = request.user
-#         okini.post = program
-#         okini.save()
+    # GETのURLクエリパラメータを取得する
+    # 該当のクエリパラメータが存在しない場合は、[]が返ってくる
+    q_djs = request.GET.getlist('dj')
 
-#         return redirect('myapp/post_edit.html', kwargs={'post_id': kwargs['post_id']})
+    # ジャンルでの絞込は、genre.pkとして存在してる値のみ対象とする
+    # "a"とかを指定するとValueErrorになるため
+    check=[]
+    for i in Dj.objects.all():
+        check.append(str(i.id))
 
+
+    keyword=''
+    if len(q_djs) != 0:
+        genres = [x for x in q_djs if x in check]
+        # 重複を削除
+        # program = program.filter(__in=genres).distinct()
+        for pk in genres:
+            result = str(Dj.objects.get(pk__in=pk))
+            keyword += result + ' '
+
+    context = {
+        'program': program,
+    }
+    messages.success(request, '「{}」の検索結果'.format(keyword))
+    return render(request, 'myapp/post_search.html', context)

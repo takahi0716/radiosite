@@ -54,6 +54,8 @@ class Program(models.Model):
       default=0
     )
 
+    
+
     def publish(self):
         self.published_date = timezone.now()
         self.save()
@@ -244,8 +246,15 @@ class Comment(models.Model):
     created_date = models.DateTimeField(
       default=timezone.now
     )
+    # 承認されたコメント
     approved_comment = models.BooleanField(
       default=False
+    )
+
+    like_user = models.ManyToManyField(
+      settings.AUTH_USER_MODEL,
+      blank=True,
+      related_name="like_users"
     )
 
     def approve(self):
@@ -255,3 +264,22 @@ class Comment(models.Model):
     def __str__(self):
         return self.text
 
+    def like_comment(self):
+        return self.like_comment
+
+# 運営からのお知らせ
+class Info(models.Model):
+
+    title = models.CharField(
+        verbose_name='題名',
+        max_length=200
+    )
+
+    text = models.TextField(
+        verbose_name='お知らせ内容',
+        blank=True,
+        null=True,
+    )
+    created_date = models.DateTimeField(
+      default=timezone.now
+    )
