@@ -291,20 +291,19 @@ class Info(models.Model):
     )
 
 class UserManager(UserManager):
-    def _create_user(self, email, username, password, **extra_fields):
+    def _create_user(self, email, password, **extra_fields):
         email = self.normalize_email(email)
-        username = self.model.normalize_username(username)
-        user = self.model(email=email, username=username, **extra_fields)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_user(self, email, username, password=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, username, password, **extra_fields)
+        return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self, email, username, password, **extra_fields):
+    def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -313,7 +312,7 @@ class UserManager(UserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self._create_user(email, username, password, **extra_fields)
+        return self._create_user(email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -337,12 +336,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
         _('username'),
         max_length=150,
-        unique=True,
+        # unique=True,
         help_text=_('この項目は必須です!半角アルファベット、半角数字、@/./+/-/_ で150文字以下にしてください。'),
         validators=[username_validator],
-        error_messages={
-            'unique': _("A user with that username already exists."),
-        },
+        # error_messages={
+        #     'unique': _("A user with that username already exists."),
+        # },
     )
     profile = models.TextField(
         verbose_name='紹介文',
@@ -355,8 +354,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     EMAIL_FIELD = 'email'
     # USERNAME_FIELD = 'email'
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
     class Meta:
         verbose_name = _('user')

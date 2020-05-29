@@ -30,5 +30,5 @@ urlpatterns = [
     path('', include('myapp.urls')),
     # ログイン・サインアップ
     path('create_account', viewss.SignUpView.as_view(), name='create_account') ,
-    path('accounts/', include('myapp.urls')), # 2. 自作の機能へ振り分け
+    # path('accounts/', include('myapp.urls')), # 2. 自作の機能へ振り分け
 ]

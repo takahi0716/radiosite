@@ -27,5 +27,6 @@ urlpatterns = [
     path('delete_complete', views.DeleteView.as_view(), name='delete-complete'),
 
     # ユーザーページ
-    path('user/<int:pk>/', views.post_detail, name='user_detail'),
+    path('user/<int:pk>/', views.user_detail, name='user_detail'),
+    path('user/<int:pk>/edit/', views.user_edit, name='user_edit'),
 ]

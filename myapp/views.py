@@ -3,7 +3,7 @@ from .models import *
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
-from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset
+from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset, UserForm
 # post_detail ページを表示できれば良いですよね?
 # そのために次のインポートを追加
 
@@ -25,6 +25,8 @@ from django.contrib.auth import (
     get_user_model, logout as auth_logout,
 )
 from .forms import UserCreateForm
+
+from django import forms 
 
 def post_list(request):
     # 時刻
@@ -174,7 +176,6 @@ def post_new(request):
 
     return render(request, 'myapp/post_edit.html', context)
 
-from django import forms 
 @login_required
 def post_edit(request, pk):
     post = get_object_or_404(Program, pk=pk)
@@ -365,13 +366,12 @@ class DeleteView(LoginRequiredMixin, generic.View):
 
 
 def user_detail(request, pk):
-    user = get_object_or_404(Program, pk=pk)
+    user = get_object_or_404(User, pk=pk)
 
     # ログイン中のユーザー
     login_user = request.user.id
 
     if user == login_user:
-
         context = {
             'user': user,
         }
@@ -380,3 +380,20 @@ def user_detail(request, pk):
             'user': user,
         }
     return render(request, 'myapp/user_detail.html', context)
+
+
+@login_required
+def user_edit(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    form = UserForm(request.POST or None, instance=user)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        # 詳細ページを表示
+        return redirect('user_detail', pk=pk)
+
+    context = {
+        'form': form,
+    }
+    # 編集ページを再度表示
+    return render(request, 'myapp/user_edit.html', context)
