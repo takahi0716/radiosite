@@ -1,14 +1,13 @@
 from django.shortcuts import render, HttpResponse
 from .models import *
-
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
-from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset 
+from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset
 # post_detail ページを表示できれば良いですよね?
 # そのために次のインポートを追加
 
 from django.shortcuts import redirect
-# roginuser only
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 import datetime
@@ -16,6 +15,16 @@ import datetime
 from django.contrib import messages
 from functools import reduce
 from operator import and_
+from django.contrib.auth import login, authenticate
+# ログイン・サインアップ
+
+from django.urls import reverse_lazy
+from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import (
+    get_user_model, logout as auth_logout,
+)
+from .forms import UserCreateForm
 
 def post_list(request):
     # 時刻
@@ -23,7 +32,7 @@ def post_list(request):
     # 日付
     today = datetime.date.today()
     # ログイン中のユーザー
-    user = request.user.id
+    # user = request.user.id
 
     # 0:月〜6:日であり、DBに合わせて１をたす
     youbi = today.weekday()+1
@@ -45,7 +54,8 @@ def post_list(request):
     genres = Genre.objects.all()
 
     # パーソナリティ
-    djs = Dj.objects.all()
+    djs = Dj.objects.all().order_by('dj_name')
+
 
     context = {
         'programs': programs,
@@ -59,7 +69,6 @@ def post_list(request):
 
 
 def post_detail(request, pk):
-# def post_detail(request, user_id, program_id):
     program = get_object_or_404(Program, pk=pk)
     # ログイン中のユーザー
     user = request.user.id
@@ -309,10 +318,11 @@ def dj_search(request):
 
     keyword=''
     if len(q_djs) != 0:
-        genres = [x for x in q_djs if x in check]
+        djs = [x for x in q_djs if x in check]
         # 重複を削除
-        # program = program.filter(__in=genres).distinct()
-        for pk in genres:
+        djid = Dj.objects.filter(pk__in=djs).values('program')
+        program = program.filter(pk__in=djid).distinct()
+        for pk in djs:
             result = str(Dj.objects.get(pk__in=pk))
             keyword += result + ' '
 
@@ -321,3 +331,52 @@ def dj_search(request):
     }
     messages.success(request, '「{}」の検索結果'.format(keyword))
     return render(request, 'myapp/post_search.html', context)
+
+
+
+
+User = get_user_model()
+
+
+class Top(generic.TemplateView):
+    template_name = 'myapp/post_list.html'
+
+
+class SignUpView(generic.CreateView):
+    form_class = UserCreateForm
+    success_url = reverse_lazy('login')
+    template_name = 'registration/signup.html'
+
+
+class ProfileView(LoginRequiredMixin, generic.View):
+
+    def get(self, *args, **kwargs):
+        return render(self.request,'registration/profile.html')
+
+
+class DeleteView(LoginRequiredMixin, generic.View):
+
+    def get(self, *args, **kwargs):
+        user = User.objects.get(email=self.request.user.email)
+        user.is_active = False
+        user.save()
+        auth_logout(self.request)
+        return render(self.request,'registration/delete_complete.html')
+
+
+def user_detail(request, pk):
+    user = get_object_or_404(Program, pk=pk)
+
+    # ログイン中のユーザー
+    login_user = request.user.id
+
+    if user == login_user:
+
+        context = {
+            'user': user,
+        }
+    else:
+        context = {
+            'user': user,
+        }
+    return render(request, 'myapp/user_detail.html', context)

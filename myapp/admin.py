@@ -1,7 +1,6 @@
 from django.contrib import admin
 from .models import *
 
-
 class StationInline(admin.StackedInline):
     model = Station
     extra = 3
@@ -28,3 +27,5 @@ admin.site.register(Dj)
 admin.site.register(Listener) 
 admin.site.register(Okini) 
 admin.site.register(Info) 
+
+admin.site.register(User)

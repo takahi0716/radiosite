@@ -1,5 +1,13 @@
 from django import forms
 from .models import *
+# ログイン・サインアップ
+from django.forms import EmailField
+# from django.utils.translation import ugettext_lazy as _
+# from django.contrib.auth.forms import UserCreationForm
+# from django.contrib.auth.models import User
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model
 
 class PostForm(forms.ModelForm):
 
@@ -18,7 +26,7 @@ class CommentForm(forms.ModelForm):
 
     class Meta:
         model = Comment
-        fields = ('author', 'text','like_user',)
+        fields = ('author', 'text',)
 
 
 class StationForm(forms.ModelForm):
@@ -86,3 +94,32 @@ ListenerFormset = forms.inlineformset_factory(
     Program, Listener,  fields='__all__',
     extra=3, can_delete=False
 )
+
+# ログイン・サインアップ
+# class SignUpForm(UserCreationForm):
+
+#     class Meta:
+#         model = User
+#         fields = ('email', 'username', 'password1', 'password2')
+
+#     def save(self, commit=True):
+#         user = super(SignUpForm, self).save(commit=False)
+#         user.email = self.cleaned_data['email']
+#         if commit:
+#             user.save()
+#         return user
+
+
+User = get_user_model()
+
+
+class UserCreateForm(UserCreationForm):
+
+    class Meta:
+        model = User
+        fields = ('email','username',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'

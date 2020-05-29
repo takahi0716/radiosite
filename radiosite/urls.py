@@ -15,12 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from django.views.generic.base import TemplateView
 from django.contrib.auth import views
+# ログイン・サインアップ
+from myapp import views as viewss
+
+from myapp.views import Top
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/login/', views.LoginView.as_view(), name='login'),
     path('accounts/logout/', views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('accounts/', include('django.contrib.auth.urls')),  # 1. 元々提供されている機能へ振り分け
     path('', include('myapp.urls')),
+    # ログイン・サインアップ
+    path('create_account', viewss.SignUpView.as_view(), name='create_account') ,
+    path('accounts/', include('myapp.urls')), # 2. 自作の機能へ振り分け
 ]
