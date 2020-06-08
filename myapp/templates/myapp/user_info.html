@@ -1,0 +1,45 @@
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+
+  <h1>{{ user.username }}</h1>
+  <p>聞いている番組：</p>
+
+
+
+  <h1>新着コメント</h1>
+
+    {% for new_coment in new_coments %}
+
+        {% if new_coment.approved_comment %}
+            <div class="comment">
+                <strong>{{ new_coment.author }}</strong>
+                <div class="date">
+                  {{ new_coment.created_date }}
+                </div>
+                <strong>
+                  <a href="{% url 'post_detail' pk=new_coment.program.pk %}">
+                    {{ new_coment.program }}
+                  </a>
+                </strong>
+                <p>{{ new_coment.text|linebreaks|truncatechars:100 }}</p>
+
+                <!-- いいね -->
+                {% if user.is_authenticated %}
+                    {% if user in new_coment.like_user.all %}
+                        <a class="btn btn-default" aria-pressed="true" onclick="like_com(event, '{{ user.id }}', '{{ new_coment.id }}')">
+                        いいねあり<span>({{ new_coment.like_user.count }})</span></a>
+                    {% else %}
+                        <a class="btn btn-default" aria-pressed="false" onclick="like_com(event, '{{ user.id }}', '{{ new_coment.id }}')">
+                        いいね<span>({{ new_coment.like_user.count }})</span></a>
+                    {% endif %}
+                {% else %}
+                    お気に入り<span>({{ new_coment.like_user.count }})</span>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% empty %}
+        <p>No comments here </p>
+    {% endfor %}
+
+{% endblock %}

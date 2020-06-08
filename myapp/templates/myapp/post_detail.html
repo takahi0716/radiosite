@@ -1,0 +1,99 @@
+{% extends 'myapp/base.html' %}
+
+{% block content %}
+    <div class="post">
+
+        {% if user.is_authenticated %}
+          <a class="btn btn-default" href="{% url 'post_edit' pk=program.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+        {% endif %}
+        <h2>{{ program.title }}</h2>
+        <p>出演者：
+          {% for dj in program.djs.all %}
+            {{ dj.dj_name }}
+            {% if not forloop.last %}
+              ,
+            {% endif %}
+          {% endfor %}
+        </p>
+        <p>公式Webページ：<a href="">{{ program.url }}</a></p>
+        <p>コーナー：{{ program.corner_title|linebreaksbr }}</p>
+        <p>
+          {% for station in program.stations.all %}
+
+            {{ station.get_station_name_display }}：
+
+            <!-- 曜日の表示 -->
+            {% for day_of_the_week in station.day_of_the_week.all %}
+              {{ day_of_the_week }}
+            {% endfor%}
+
+            {{ station.start_time }} 〜 {{ station.end_time }}
+            {% if not forloop.last %}
+              <br>
+            {% endif %}
+          {% empty %}
+            No select 
+          {% endfor %}
+        </p>
+        <p>ジャンル：
+          {% for genre in program.genrelist.all %}
+            {{ genre }}
+          {% endfor%}
+        </p>
+
+        <p>主なはがき職人：
+          {% for listener in program.listeners.all %}
+            {{ listener.listener_name }}
+            {% if not forloop.last %}
+              ,
+            {% endif %}
+          {% endfor %}
+        </p>
+
+        <!-- okini -->
+            <div class="article">
+              {% if user.is_authenticated %}
+                <ul>
+                    {% if okini_sign > 0 %}
+                        <a class="btn btn-default" aria-pressed="true" onclick="post_okini(event, '{{ user.id }}', '{{ program.id }}')">
+                    {% else %}
+                        <a class="btn btn-default" aria-pressed="false" onclick="post_okini(event, '{{ user.id }}', '{{ program.id }}')">
+                    {% endif %}
+                    お気に入り<span>({{ program.okini_program.count }})</span></a>
+                </ul>
+                {% else %}
+                <ul>
+                    お気に入り<span>({{ program.okini_program.count }})</span>
+                </ul>
+              {% endif %}
+            </div>
+
+    </div>
+
+    <hr>
+    {% if user.is_authenticated %}
+        <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=program.pk %}">Add comment</a>
+    {% endif %}
+    {% for comment in program.comments.all %}
+        {% if user.is_authenticated or comment.approved_comment %}
+            <div class="comment">
+                <div class="date">
+                  {{ comment.created_date }}
+                  {% if not comment.approved_comment %}
+                      <a class="btn btn-default" href="{% url 'comment_remove' pk=comment.pk %}"><span class="glyphicon glyphicon-remove"></span></a>
+                      <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span class="glyphicon glyphicon-ok"></span></a>
+                  {% endif %}
+                </div>
+                <strong>
+                  <a href="{% url 'user_detail' pk=comment.user.pk %}">
+                    {{ comment.user.username }}
+                  </a>
+                </strong>
+                <p>{{ comment.text|linebreaks }}</p>
+            </div>
+        {% endif %}
+    {% empty %}
+        <p>No comments here </p>
+    {% endfor %}
+
+{% endblock %}
