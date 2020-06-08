@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'myapp.apps.MyappConfig',
     'myapp',
 ]
 
@@ -151,3 +150,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # ログインが成功したときにトップレベルのインデックス（ブログのホームページ）にリダイレクトします。
 LOGIN_REDIRECT_URL = '/'
+
+
+# Gmail で送信する場合
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'oshima11223344@gmail.com'
+EMAIL_HOST_PASSWORD = 'eyimierklpuyaoev'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

@@ -71,7 +71,9 @@
     </div>
 
     <hr>
-    <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=program.pk %}">Add comment</a>
+    {% if user.is_authenticated %}
+        <a class="btn btn-default" href="{% url 'add_comment_to_post' pk=program.pk %}">Add comment</a>
+    {% endif %}
     {% for comment in program.comments.all %}
         {% if user.is_authenticated or comment.approved_comment %}
             <div class="comment">
@@ -82,11 +84,16 @@
                       <a class="btn btn-default" href="{% url 'comment_approve' pk=comment.pk %}"><span class="glyphicon glyphicon-ok"></span></a>
                   {% endif %}
                 </div>
-                <strong>{{ comment.author }}</strong>
+                <strong>
+                  <a href="{% url 'user_detail' pk=comment.user.pk %}">
+                    {{ comment.user.username }}
+                  </a>
+                </strong>
                 <p>{{ comment.text|linebreaks }}</p>
             </div>
         {% endif %}
     {% empty %}
         <p>No comments here </p>
     {% endfor %}
+
 {% endblock %}

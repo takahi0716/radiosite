@@ -75,7 +75,11 @@
 
         {% if new_coment.approved_comment %}
             <div class="comment">
-                <strong>{{ new_coment.author }}</strong>
+                <strong>
+                  <a href="{% url 'user_detail' pk=new_coment.user.pk %}">
+                    {{ new_coment.user.username }}
+                  </a>
+                </strong>
                 <div class="date">
                   {{ new_coment.created_date }}
                 </div>
@@ -103,7 +107,7 @@
     {% empty %}
         <p>No comments here </p>
     {% endfor %}
-
+    <a class ="btn btn-default" href="{% url 'comment_list' %}">もっと見る</a>
     <h1>ジャンル別TOP５</h1>
 
     {% for key, value in programs.items %}
@@ -145,8 +149,29 @@
         <h2>
             {{ info.title }}
         </h2>
+        <div class="date">
+          {{ info.created_date }}
+        </div>
         <p>
             {{ info.text|linebreaks }}
         </p>
     {% endfor %}
+    <a class ="btn btn-default" href="{% url 'info_list' %}">
+      もっと見る
+    </a>
+    <div>
+      <a href="{% url 'pageinfo' %}">ラジコネ！とは</a>
+    </div>
+    <div>
+        <a href="{% url 'contact_form' %}">お問い合わせ</a>
+    </div>
+    <div>
+      <a href="{% url 'opinion_form' %}">意見箱</a>
+    </div>
+    <div>
+      <a href="{% url 'terms' %}">利用規約</a>
+    </div>
+    <div>
+      <a href="{% url 'privacy' %}">プライバシーポリシー</a>
+    </div>
 {% endblock %}

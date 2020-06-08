@@ -219,14 +219,12 @@ class Okini(models.Model):
       settings.AUTH_USER_MODEL,
       on_delete=models.CASCADE,
       related_name='okini_user',
-      default='',
     )
 
     program = models.ForeignKey(
       Program,
       on_delete=models.CASCADE,
       related_name='okini_program',
-      default='',
     )
 
     date_created = models.DateTimeField(
@@ -245,9 +243,12 @@ class Comment(models.Model):
       related_name='comments'
     )
 
-    author = models.CharField(
-      max_length=200
+    user = models.ForeignKey(
+      settings.AUTH_USER_MODEL,
+      on_delete=models.CASCADE,
+      related_name='comment_user',
     )
+
     text = models.TextField()
     created_date = models.DateTimeField(
       default=timezone.now
@@ -368,3 +369,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+# 意見箱
+class Opinion(models.Model):
+
+    name = models.CharField(
+        verbose_name='名前',
+        max_length=200
+    )
+
+    text = models.TextField(
+        verbose_name='ご意見',
+        blank=True,
+        null=True,
+    )
+    created_date = models.DateTimeField(
+      default=timezone.now
+    )

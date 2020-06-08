@@ -3,7 +3,7 @@ from .models import *
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
-from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset, UserForm
+from .forms import PostForm, CommentForm, StationForm, StationFormset, DjFormset, ListenerFormset, UserForm, ContactForm, OpinionForm
 # post_detail ページを表示できれば良いですよね?
 # そのために次のインポートを追加
 
@@ -27,6 +27,9 @@ from django.contrib.auth import (
 from .forms import UserCreateForm
 
 from django import forms 
+# お問い合わせ
+from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 
 def post_list(request):
     # 時刻
@@ -108,11 +111,15 @@ def post_remove(request, pk):
 
 def add_comment_to_post(request, pk):
     post = get_object_or_404(Program, pk=pk)
+    # ログイン中のユーザー
+    userid = request.user.id
+    user = get_object_or_404(User, pk=userid)
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
             comment.program = post
+            comment.user = user
             comment.save()
             return redirect('post_detail', pk=post.pk)
     else:
@@ -131,6 +138,12 @@ def comment_remove(request, pk):
     comment.delete()
     return redirect('post_detail', pk=comment.program.pk)
 
+def comment_list(request):
+    comments = Comment.objects.all().order_by('created_date').reverse()
+    context = {
+        'comments': comments,
+    }
+    return render(request, 'myapp/comment_list.html', context)
 
 @login_required
 def post_new(request):
@@ -334,8 +347,6 @@ def dj_search(request):
     return render(request, 'myapp/post_search.html', context)
 
 
-
-
 User = get_user_model()
 
 
@@ -366,19 +377,23 @@ class DeleteView(LoginRequiredMixin, generic.View):
 
 
 def user_detail(request, pk):
-    user = get_object_or_404(User, pk=pk)
-
+    this_user = get_object_or_404(User, pk=pk)
+    comments = Comment.objects.filter(user=pk)
+    okinis = Okini.objects.filter(user=pk)
     # ログイン中のユーザー
-    login_user = request.user.id
+    loginuser = request.user.id
+    matchsign = 0
 
-    if user == login_user:
-        context = {
-            'user': user,
-        }
-    else:
-        context = {
-            'user': user,
-        }
+    if loginuser == this_user.id:
+        matchsign = 1
+
+    context = {
+        'this_user': this_user,
+        'comments':comments,
+        'okinis':okinis,
+        'matchsign':matchsign,
+    }
+    
     return render(request, 'myapp/user_detail.html', context)
 
 
@@ -397,3 +412,61 @@ def user_edit(request, pk):
     }
     # 編集ページを再度表示
     return render(request, 'myapp/user_edit.html', context)
+
+
+def info_list(request):
+    infos = Info.objects.all().order_by('created_date').reverse()
+    context = {
+        'infos': infos,
+    }
+    return render(request, 'myapp/info_list.html', context)
+
+# お問い合わせ
+class ContactFormView(FormView):
+    template_name = 'myapp/contact_form.html'
+    form_class = ContactForm
+    success_url = reverse_lazy('contact_result')
+
+    def form_valid(self, form):
+        form.send_email()
+        return super().form_valid(form)
+
+
+class ContactResultView(TemplateView):
+    template_name = 'myapp/contact_result.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['success'] = "お問い合わせ"
+
+# 意見箱
+def opinion_form(request):
+    form = OpinionForm(request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        msg = 'ありがとうございました'
+        context = {
+          'msg': msg,
+        }
+        return render(request, 'myapp/opinion_result.html', context)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'myapp/opinion_form.html', context)
+    
+# ページ情報
+def pageinfo(request):
+
+    return render(request, 'myapp/pageinfo.html')
+
+# 利用規約
+def terms(request):
+
+    return render(request, 'myapp/terms.html')
+
+# プライバシーポリシー
+def privacy(request):
+
+    return render(request, 'myapp/privacy.html')

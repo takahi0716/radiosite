@@ -2,12 +2,14 @@ from django import forms
 from .models import *
 # ログイン・サインアップ
 from django.forms import EmailField
-# from django.utils.translation import ugettext_lazy as _
-# from django.contrib.auth.forms import UserCreationForm
-# from django.contrib.auth.models import User
 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
+
+# お問い合わせ
+from django.conf import settings
+from django.core.mail import BadHeaderError, send_mail
+from django.http import HttpResponse
 
 class PostForm(forms.ModelForm):
 
@@ -26,7 +28,7 @@ class CommentForm(forms.ModelForm):
 
     class Meta:
         model = Comment
-        fields = ('author', 'text',)
+        fields = ('text',)
 
 
 class StationForm(forms.ModelForm):
@@ -130,3 +132,47 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('email','username','profile')
+
+# お問い合わせ
+class ContactForm(forms.Form):
+    name = forms.CharField(
+        label='',
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': "お名前",
+        }),
+    )
+    email = forms.EmailField(
+        label='',
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': "メールアドレス",
+        }),
+    )
+    message = forms.CharField(
+        label='',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': "お問い合わせ内容",
+        }),
+    )
+
+    def send_email(self):
+        subject = "お問い合わせ"
+        message = self.cleaned_data['message']
+        name = self.cleaned_data['name']
+        email = self.cleaned_data['email']
+        from_email = '{name} <{email}>'.format(name=name, email=email)
+        recipient_list = [settings.EMAIL_HOST_USER]  # 受信者リスト
+        try:
+            send_mail(subject, message, from_email, recipient_list)
+        except BadHeaderError:
+            return HttpResponse("無効なヘッダが検出されました。")
+
+# 意見箱
+class OpinionForm(forms.ModelForm):
+
+    class Meta:
+        model = Opinion
+        fields = ('name','text')
