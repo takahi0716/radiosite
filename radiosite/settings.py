@@ -154,7 +154,7 @@ LOGIN_REDIRECT_URL = '/'
 
 # Gmail で送信する場合
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'oshima11223344@gmail.com'
-EMAIL_HOST_PASSWORD = 'eyimierklpuyaoev'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
