@@ -1,5 +1,5 @@
 dj-database-url==0.5.0
-Django==2.2.12
+Django==2.2.20
 -e git://github.com/AndrewIngram/django-extra-views.git@31dd9ed7d1a06924b22be91f49d713482a011954#egg=django_extra_views
 gunicorn==20.0.4
 # psycopg2==2.8.5
